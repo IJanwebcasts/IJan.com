@@ -1,11 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>iJan Homepage</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iJan Homepage</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background: #ffe600; }
+    header { background: #ff2d95; color:white; text-align:center; padding:20px; }
+    header img { max-width:200px; }
+    nav { display:flex; justify-content:center; background:#ff6f00; }
+    nav a { padding:15px 20px; color:white; text-decoration:none; font-weight:bold; }
+    nav a:hover { background:#ff9e00; }
+    section { padding:50px; text-align:center; }
+    #recordPanel { display:none; margin-top:20px; }
+    button { margin:5px; padding:10px 15px; font-size:16px; cursor:pointer; }
+    input[type="password"] { padding:10px; font-size:16px; }
+  </style>
 </head>
 <body>
-    <h1>Welcome to iJan.com</h1>
-    <p>Home | Recent Episodes | Webcast Live | Bloopers | Highlights | Behind the Scenes</p>
+
+<header>
+  <img src="ijan.png" alt="iJan Branding">
+  <h1>Welcome to iJan.com</h1>
+  <p>New episodes every Friday at 7 PM!</p>
+</header>
+
+<nav>
+  <a href="#home">Home</a>
+  <a href="#recent">Recent Episodes</a>
+  <a href="#live">Webcast Live</a>
+  <a href="#bloopers">Bloopers</a>
+  <a href="#highlights">Highlights</a>
+  <a href="#bts">Behind the Scenes</a>
+</nav>
+
+<section id="home"><h2>Home</h2><p>Welcome to my homepage!</p></section>
+<section id="recent"><h2>Recent Episodes</h2><p>Check out the latest episodes here.</p></section>
+<section id="live"><h2>Webcast Live</h2><p>Watch live every Friday at 7 PM!</p></section>
+<section id="bloopers"><h2>Bloopers</h2><p>Funny moments behind the scenes.</p></section>
+<section id="highlights"><h2>Highlights</h2><p>Best clips from past episodes.</p></section>
+<section id="bts"><h2>Behind the Scenes</h2><p>Exclusive sneak peeks!</p></section>
+
+<section id="recordSection">
+  <h2>Recording Panel (Password Required)</h2>
+  <input type="password" id="password" placeholder="Enter password">
+  <button onclick="checkPassword()">Unlock</button>
+
+  <div id="recordPanel">
+    <video id="preview" width="400" height="300" autoplay muted></video><br>
+    <button onclick="startRecording()">Start Recording</button>
+    <button onclick="stopRecording()">Stop Recording</button>
+    <button onclick="toggleMic()">Mute/Unmute Mic</button>
+    <button onclick="toggleCamera()">Turn Camera On/Off</button>
+    <button onclick="soundEffect()">Sound Effect</button>
+  </div>
+</section>
+
+<script>
+let recorder, stream;
+let audioEnabled = true;
+let videoEnabled = true;
+
+function checkPassword() {
+  const pass = document.getElementById('password').value;
+  if(pass === "Janden123@") {
+    document.getElementById('recordPanel').style.display = 'block';
+  } else { alert('Wrong password!'); }
+}
+
+async function startRecording() {
+  stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+  document.getElementById('preview').srcObject = stream;
+  recorder = new MediaRecorder(stream);
+  recorder.start();
+  recorder.ondataavailable = e => {
+    const url = URL.createObjectURL(e.data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'myRecording.webm';
+    a.click();
+  };
+}
+
+function stopRecording() {
+  recorder.stop();
+  stream.getTracks().forEach(track => track.stop());
+}
+
+function toggleMic() { audioEnabled = !audioEnabled; stream.getAudioTracks()[0].enabled = audioEnabled; }
+function toggleCamera() { videoEnabled = !videoEnabled; stream.getVideoTracks()[0].enabled = videoEnabled; }
+function soundEffect() { alert('Sound effect! 🔊'); } // placeholder
+</script>
+
 </body>
 </html>
